@@ -86,6 +86,41 @@ ln -sf "$(pwd)/smart_segments.desktop" ~/.local/share/krita/pykrita/smart_segmen
 
 </details>
 
+## � Screenshots
+
+See Smart Segments in action with these screenshots from the development process:
+
+<div align="center">
+
+
+![Screenshot from 18:46](resources/images/Screenshot%20From%202025-07-29%2018-46-10.png)
+
+![Screenshot from 22:14](resources/images/Screenshot%20From%202025-07-29%2022-14-44.png)
+
+![Screenshot from 18:50](resources/images/Screenshot%20From%202025-07-29%2018-50-05.png)
+
+![Screenshot from 19:12](resources/images/Screenshot%20From%202025-07-29%2019-12-01.png)
+
+![Screenshot from 18:49](resources/images/Screenshot%20From%202025-07-29%2018-49-16.png)
+
+![Screenshot from 19:07](resources/images/Screenshot%20From%202025-07-29%2019-07-37.png)
+
+![Screenshot from 19:15](resources/images/Screenshot%20From%202025-07-29%2019-15-20.png)
+
+![Screenshot from 19:15](resources/images/Screenshot%20From%202025-07-29%2019-15-30.png)
+
+![Screenshot from 21:43](resources/images/Screenshot%20From%202025-07-29%2021-43-53.png)
+
+![Screenshot from 21:12](resources/images/Screenshot%20From%202025-07-29%2021-12-12.png)
+
+![Screenshot from 21:41](resources/images/Screenshot%20From%202025-07-29%2021-41-13.png)
+
+![Screenshot from 21:43](resources/images/Screenshot%20From%202025-07-29%2021-43-11.png)
+
+
+</div>
+
+
 ## 👨‍💻 Development
 
 > **Development Mode**: The plugin uses symbolic links, so code changes are immediately available after restarting Krita.
