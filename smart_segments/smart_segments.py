@@ -257,15 +257,26 @@ class SmartSegmentsExtension(Extension):
                 self.logger.error(f"Virtual environment does not exist at {venv_path}")
                 return False
             
-            # Check if python executable exists
+            # Check if python executable exists (try multiple possibilities on Windows)
             if os.name == 'nt':  # Windows
-                python_path = venv_path / "Scripts" / "python.exe"
+                python_candidates = [
+                    venv_path / "Scripts" / "python.exe",
+                    venv_path / "Scripts" / "python3.exe"
+                ]
+                python_path = None
+                for candidate in python_candidates:
+                    if candidate.exists():
+                        python_path = candidate
+                        break
+                
+                if python_path is None:
+                    self.logger.error(f"Python executable not found. Tried: {python_candidates}")
+                    return False
             else:  # Unix/Linux/macOS
                 python_path = venv_path / "bin" / "python"
-            
-            if not python_path.exists():
-                self.logger.error(f"Python executable not found at {python_path}")
-                return False
+                if not python_path.exists():
+                    self.logger.error(f"Python executable not found at {python_path}")
+                    return False
             
             # Test basic functionality
             try:

@@ -72,10 +72,24 @@ class MinimalBootstrap:
             
             # Get nvidia-smi path (cross-platform)
             if platform.system() == "Windows":
-                nvidia_smi_path = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "NVIDIA Corporation" / "NVSMI" / "nvidia-smi.exe"
-                if not nvidia_smi_path.exists():
-                    return False
-                command = [str(nvidia_smi_path)]
+                # Try multiple possible locations for nvidia-smi.exe
+                possible_paths = [
+                    Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "NVIDIA Corporation" / "NVSMI" / "nvidia-smi.exe",
+                    Path(os.environ.get("ProgramFiles(x86)", "C:/Program Files (x86)")) / "NVIDIA Corporation" / "NVSMI" / "nvidia-smi.exe",
+                    Path("C:/Windows/System32/nvidia-smi.exe"),  # Sometimes in System32
+                ]
+                
+                nvidia_smi_path = None
+                for path in possible_paths:
+                    if path.exists():
+                        nvidia_smi_path = path
+                        break
+                
+                if nvidia_smi_path is None:
+                    # Try using PATH as fallback
+                    command = ["nvidia-smi"]
+                else:
+                    command = [str(nvidia_smi_path)]
             else: # Linux/macOS
                 command = ["nvidia-smi"]
             
