@@ -86,7 +86,7 @@ ln -sf "$(pwd)/smart_segments.desktop" ~/.local/share/krita/pykrita/smart_segmen
 
 </details>
 
-## � Screenshots
+## 📸 Screenshots
 
 See Smart Segments in action with these screenshots from the development process:
 
