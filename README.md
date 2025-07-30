@@ -43,9 +43,41 @@ sudo apt install libgtk-4-dev libadwaita-1-dev git blueprint-compiler gettext li
 
 > **Note**: While developed on Ubuntu, the plugin architecture supports cross-platform deployment. Windows and macOS compatibility may require additional testing.
 
-## 🚀 Quick Installation
+## 🚀 Installation
 
-### 🎯 One-Command Setup (Recommended)
+### 🎯 Method 1: Import from GitHub (Recommended)
+
+1. **Open Krita**
+2. Navigate to **Tools** → **Scripts** → **Import Python Plugin from Web**
+3. Enter this GitHub repository URL:
+   ```
+   https://github.com/a904guy/Smart_Segments
+   ```
+4. Click **OK** and wait for download to complete
+5. **Restart Krita**
+6. Go to **Settings** → **Configure Krita** → **Python Plugin Manager**
+7. Enable **"Smart Segments"** plugin
+8. **Restart Krita** again
+9. Access via **Tools** → **Smart Segments**
+
+### 📦 Method 2: Import from Release ZIP
+
+1. **Download** the latest release ZIP from [GitHub Releases](https://github.com/a904guy/Smart_Segments/releases)
+2. **Open Krita**
+3. Navigate to **Tools** → **Scripts** → **Import Python Plugin from Zip File**
+4. Select the downloaded ZIP file
+5. **Restart Krita**
+6. Go to **Settings** → **Configure Krita** → **Python Plugin Manager**
+7. Enable **"Smart Segments"** plugin
+8. **Restart Krita** again
+9. Access via **Tools** → **Smart Segments**
+
+### 🛠️ Method 3: Developer Installation
+
+<details>
+<summary>For developers and advanced users (click to expand)</summary>
+
+This method creates symbolic links for live development:
 
 ```bash
 ./dev-install.sh
@@ -57,17 +89,7 @@ sudo apt install libgtk-4-dev libadwaita-1-dev git blueprint-compiler gettext li
 - ✅ Creates development symlinks for live editing
 - ✅ Provides step-by-step activation guide
 
-### 🛠️ Manual Installation
-
-<details>
-<summary>Click to expand manual installation steps</summary>
-
-#### Step 1: Install Dependencies
-```bash
-sudo apt update && sudo apt install krita python3-pyqt5
-```
-
-#### Step 2: Link Plugin to Krita
+#### Manual Development Setup
 ```bash
 # Create Krita plugin directory
 mkdir -p ~/.local/share/krita/pykrita
@@ -76,13 +98,6 @@ mkdir -p ~/.local/share/krita/pykrita
 ln -sf "$(pwd)/smart_segments" ~/.local/share/krita/pykrita/smart_segments
 ln -sf "$(pwd)/smart_segments.desktop" ~/.local/share/krita/pykrita/smart_segments.desktop
 ```
-
-#### Step 3: Activate in Krita
-1. Launch Krita: `krita`
-2. Navigate to **Settings** → **Configure Krita** → **Python Plugin Manager**
-3. Enable **"Smart Segments"** plugin
-4. Restart Krita
-5. Access via **Tools** → **Smart Segments**
 
 </details>
 
