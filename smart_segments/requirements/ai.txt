@@ -1,0 +1,5 @@
+# AI/ML dependencies
+git+https://github.com/facebookresearch/segment-anything-2.git
+transformers>=4.20.0
+accelerate>=0.20.0
+safetensors>=0.3.0

@@ -1,0 +1,27 @@
+# Smart Segments Krita Plugin - Dependencies
+
+# Core dependencies
+numpy>=1.21.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+
+# SAM2 model dependencies (when available)
+# sam2>=1.0.0  # Uncomment when sam2 package is available
+
+# Optional dependencies for enhanced functionality
+psutil>=5.8.0  # System monitoring (optional, has fallbacks)
+Pillow>=8.3.0  # Image processing utilities
+
+# Development dependencies (install with: pip install -r requirements-dev.txt)
+# pytest>=6.2.0
+# pytest-cov>=2.12.0
+# black>=21.0.0
+# flake8>=3.9.0
+
+# Platform-specific dependencies
+# Windows
+# pywin32>=227; sys_platform == "win32"
+
+# Note: Krita API (krita module) is provided by Krita itself
+# and doesn't need to be installed separately

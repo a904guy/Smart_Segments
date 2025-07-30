@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=smart_segments
+X-Python-2-Compatible=false
+X-Krita-Manual=Manual.html
+Name=Smart Segments
+Name[en_US]=Smart Segments
+Comment=AI-powered intelligent segmentation tool for Krita
+Comment[en_US]=AI-powered intelligent segmentation tool for Krita

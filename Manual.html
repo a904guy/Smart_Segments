@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Segments - AI-Powered Segmentation for Krita</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        h2 {
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .steps {
+            counter-reset: step-counter;
+        }
+        
+        .step {
+            counter-increment: step-counter;
+            background: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step::before {
+            content: "Step " counter(step-counter);
+            font-weight: bold;
+            color: #2980b9;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .version-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .tech-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            border: 1px solid #bbdefb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Smart Segments</h1>
+        <div class="subtitle">AI-Powered Intelligent Segmentation for Krita</div>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <span class="version-badge">v0.1.0</span>
+        </div>
+
+        <h2>🚀 What is Smart Segments?</h2>
+        <p>
+            Smart Segments revolutionizes digital art creation by bringing cutting-edge AI segmentation technology directly to Krita. 
+            Powered by Meta's SAM2 (Segment Anything Model 2), this plugin enables artists to select and isolate objects in their 
+            artwork with unprecedented precision and ease.
+        </p>
+
+        <div class="highlight">
+            <strong>🎯 Perfect for:</strong> Digital painters, concept artists, photo manipulators, and anyone working with complex selections in Krita.
+        </div>
+
+        <h2>✨ Key Features</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>AI-Powered Intelligence</h3>
+                <p>Advanced machine learning for precise object detection and segmentation</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>One-Click Selection</h3>
+                <p>Click anywhere on an object to instantly select it with perfect boundaries</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Real-Time Preview</h3>
+                <p>See segmentation results instantly as you work</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔧</div>
+                <h3>Krita Integration</h3>
+                <p>Seamless integration with Krita's native tools and workflow</p>
+            </div>
+        </div>
+
+        <h2>🎮 How to Use</h2>
+        <div class="steps">
+            <div class="step">
+                <strong>Access the Plugin</strong><br>
+                Go to <em>Tools → Smart Segments</em> or use your configured keyboard shortcut
+            </div>
+            <div class="step">
+                <strong>Select Your Mode</strong><br>
+                Choose between interactive segmentation or automatic object detection
+            </div>
+            <div class="step">
+                <strong>Click to Segment</strong><br>
+                Simply click on any object in your artwork to select it
+            </div>
+            <div class="step">
+                <strong>Refine Selection</strong><br>
+                Use Shift+Click to add multiple objects or refine your selection
+            </div>
+            <div class="step">
+                <strong>Apply to Layer</strong><br>
+                Convert your segmentation to a Krita selection or mask
+            </div>
+        </div>
+
+        <h2>⚙️ First-Time Setup</h2>
+        <div class="warning">
+            <strong>📡 Internet Required:</strong> The initial setup requires an internet connection to download AI models (~3GB).
+        </div>
+
+        <p>When you first launch Smart Segments, the automated setup wizard will:</p>
+        <ul>
+            <li>🔍 Check your system requirements</li>
+            <li>🐍 Create an isolated Python environment</li>
+            <li>📥 Download the SAM2 AI models</li>
+            <li>📦 Install all necessary dependencies</li>
+            <li>🧪 Run a test to verify everything works</li>
+        </ul>
+
+        <div class="success">
+            <strong>⏱️ Setup Time:</strong> The entire process typically takes 10-15 minutes depending on your internet connection.
+        </div>
+
+        <h2>💻 System Requirements</h2>
+        <ul>
+            <li><strong>Krita:</strong> Version 5.0+ with Python support</li>
+            <li><strong>Operating System:</strong> Linux (Ubuntu recommended), Windows 10/11, macOS (experimental)</li>
+            <li><strong>Python:</strong> 3.7 or higher</li>
+            <li><strong>RAM:</strong> 4GB minimum, 8GB recommended</li>
+            <li><strong>Storage:</strong> 5GB free space for models and dependencies</li>
+            <li><strong>GPU:</strong> Optional but recommended for faster processing</li>
+        </ul>
+
+        <div class="tech-stack">
+            <span class="tech-tag">PyTorch</span>
+            <span class="tech-tag">SAM2</span>
+            <span class="tech-tag">NumPy</span>
+            <span class="tech-tag">OpenCV</span>
+            <span class="tech-tag">PyQt5</span>
+        </div>
+
+        <h2>🛠️ Advanced Features</h2>
+        <h3>🎨 Multi-Selection Mode</h3>
+        <p>Hold Shift while clicking to select multiple objects simultaneously, perfect for complex compositions.</p>
+
+        <h3>🔧 Smart Integration</h3>
+        <p>Seamlessly convert AI selections to Krita selections, masks, or new layers for advanced editing workflows.</p>
+
+        <h3>⚡ Performance Optimization</h3>
+        <p>Automatic GPU acceleration when available, with intelligent fallback to CPU processing.</p>
+
+        <h2>🆘 Troubleshooting</h2>
+        <div class="warning">
+            <strong>⚠️ Common Issues:</strong>
+            <ul>
+                <li><strong>Plugin not visible:</strong> Ensure you're using the APT version of Krita (not Snap)</li>
+                <li><strong>Setup fails:</strong> Check internet connection and available disk space</li>
+                <li><strong>Slow performance:</strong> Consider enabling GPU acceleration in settings</li>
+            </ul>
+        </div>
+
+        <h2>🤝 Support & Community</h2>
+        <p>
+            <strong>GitHub:</strong> <a href="https://github.com/a904guy/Smart_Segments">github.com/a904guy/Smart_Segments</a><br>
+            <strong>Issues:</strong> Report bugs and request features on our GitHub repository<br>
+            <strong>Contact:</strong> software+smartsegments@hawkins.tech
+        </p>
+
+        <div class="highlight">
+            <strong>🎨 Made with ❤️ for the Krita community by Hawkins.Tech Inc</strong>
+        </div>
+    </div>
+</body>
+</html>
