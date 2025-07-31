@@ -51,7 +51,7 @@ sudo apt install libgtk-4-dev libadwaita-1-dev git blueprint-compiler gettext li
 2. Navigate to **Tools** → **Scripts** → **Import Python Plugin from Web**
 3. Enter this GitHub repository URL:
    ```
-   https://github.com/a904guy/Smart_Segments
+   https://github.com/a904guy/Smart_Segments/releases/download/1.0.0/SmartSegments_v1.0.0.zip
    ```
 4. Click **OK** and wait for download to complete
 5. **Restart Krita**
