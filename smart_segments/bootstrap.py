@@ -300,11 +300,19 @@ class EnvironmentBootstrapper:
         
     def _create_venv_with_fallback(self, venv_path: Path) -> Path:
         """Create virtual environment with multiple fallback methods"""
-        methods = [
-            ("python -m venv", [sys.executable, "-m", "venv", str(venv_path)]),
-            ("python3 -m venv", ["python3", "-m", "venv", str(venv_path)]),
-            ("virtualenv", ["virtualenv", str(venv_path)]),
-        ]
+        methods = []
+        # Prefer Windows launcher when available, and avoid Krita.exe
+        if os.name == 'nt' and shutil.which('py'):
+            methods.append(("py -3 -m venv", ["py", "-3", "-m", "venv", str(venv_path)]))
+        exe_name = Path(sys.executable).name.lower()
+        if 'krita' not in exe_name:
+            methods.append(("python -m venv", [sys.executable, "-m", "venv", str(venv_path)]))
+        if os.name == 'nt' and shutil.which('python'):
+            methods.append(("python -m venv (PATH)", ["python", "-m", "venv", str(venv_path)]))
+        if shutil.which('python3'):
+            methods.append(("python3 -m venv", ["python3", "-m", "venv", str(venv_path)]))
+        if shutil.which('virtualenv'):
+            methods.append(("virtualenv", ["virtualenv", str(venv_path)]))
         
         for method_name, cmd in methods:
             try:
@@ -319,7 +327,7 @@ class EnvironmentBootstrapper:
                 if result.returncode == 0:
                     self.logger.info(f"Successfully created virtual environment with {method_name}")
                     
-                    # Return path to Python executable
+        # Return path to Python executable
                     if self.system_info.platform == "windows":
                         python_exe = venv_path / "Scripts" / "python.exe"
                     else:

@@ -54,15 +54,33 @@ class SAM2ModelLoader:
             models_dir: Directory to store models (defaults to project models directory)
         """
         if models_dir is None:
-            # Use project models directory
-            project_root = Path(__file__).parent.parent.parent.parent
+            # Use Krita config directory for models
+            import platform
+            if platform.system() == "Windows":
+                project_root = Path(os.path.expanduser("~")) / "AppData" / "Roaming" / "krita"
+            elif platform.system() == "Darwin":  # macOS
+                project_root = Path(os.path.expanduser("~")) / "Library" / "Application Support" / "krita"
+            else:  # Linux and others
+                # Try XDG_CONFIG_HOME first, fallback to ~/.config
+                xdg_config = os.environ.get('XDG_CONFIG_HOME')
+                if xdg_config:
+                    project_root = Path(xdg_config) / "krita"
+                else:
+                    project_root = Path(os.path.expanduser("~")) / ".config" / "krita"
             models_dir = project_root / "models"
         
         self.models_dir = Path(models_dir)
         self.models_dir.mkdir(parents=True, exist_ok=True)
         
-        # Setup logging
-        self.logger = logging.getLogger(__name__)
+        # Setup logging with same handler as main logger
+        self.logger = logging.getLogger("smart_segments.model_loader")
+        # Ensure it has the same handler as the main logger
+        if not self.logger.handlers:
+            main_logger = logging.getLogger("smart_segments_plugin")
+            if main_logger.handlers:
+                for handler in main_logger.handlers:
+                    self.logger.addHandler(handler)
+            self.logger.setLevel(logging.DEBUG)
         
         # Model cache
         self._model_cache: Dict[str, Any] = {}
@@ -190,10 +208,27 @@ class SAM2ModelLoader:
             config = self.MODEL_CONFIGS[model_name]
             checkpoint_path = self.models_dir / f"{model_name}.pt"
             
-            self.logger.info(f"Loading {model_name} on {device}...")
+            self.logger.info(f"Loading {model_name} from {checkpoint_path} on {device}...")
             
-            # Build model using SAM2 config
-            model = build_sam2(config['config'], str(checkpoint_path), device=device)
+            # Verify checkpoint file exists
+            if not checkpoint_path.exists():
+                self.logger.error(f"Checkpoint file not found at {checkpoint_path}")
+                return None
+            
+            self.logger.info(f"Checkpoint file size: {checkpoint_path.stat().st_size / 1024 / 1024:.2f} MB")
+            
+            # Build model using SAM2 config - need full path to config file
+            # Find sam2 package location
+            import sam2
+            sam2_path = Path(sam2.__file__).parent
+            config_path = sam2_path / "configs" / "sam2" / config['config']
+            
+            if not config_path.exists():
+                self.logger.error(f"Config file not found at {config_path}")
+                return None
+            
+            self.logger.info(f"Building SAM2 model with config: {config_path}")
+            model = build_sam2(str(config_path), str(checkpoint_path), device=device)
             
             # Cache the model
             self._model_cache[cache_key] = model
@@ -202,7 +237,7 @@ class SAM2ModelLoader:
             return model
             
         except Exception as e:
-            self.logger.error(f"Failed to load model {model_name}: {e}")
+            self.logger.error(f"Failed to load model {model_name}: {e}", exc_info=True)
             return None
     
     def clear_cache(self):

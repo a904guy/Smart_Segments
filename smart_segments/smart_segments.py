@@ -79,12 +79,19 @@ class SmartSegmentsExtension(Extension):
             project_root = plugin_file.parent.parent.parent
             venv_path = project_root / "venv"
             if venv_path.exists():
-                site_packages_paths = list(venv_path.glob("lib/python*/site-packages"))
-                if site_packages_paths:
-                    site_packages = str(site_packages_paths[0])
-                    if site_packages not in sys.path:
-                        self.logger.info(f"Adding venv site-packages to sys.path: {site_packages}")
-                        sys.path.insert(0, site_packages)
+                candidates = []
+                # Windows venv site-packages
+                if os.name == 'nt':
+                    candidates.append(venv_path / "Lib" / "site-packages")
+                # Unix-like venv site-packages
+                candidates.extend(venv_path.glob("lib/python*/site-packages"))
+                for sp in candidates:
+                    if sp.exists():
+                        sp_str = str(sp)
+                        if sp_str not in sys.path:
+                            self.logger.info(f"Adding venv site-packages to sys.path: {sp_str}")
+                            sys.path.insert(0, sp_str)
+                        break
         except Exception as e:
             self.logger.warning(f"Could not add venv to sys.path: {e}")
 
@@ -123,6 +130,24 @@ class SmartSegmentsExtension(Extension):
                 self.logger.error(f"CRITICAL: Failed to load dependencies: {e}", exc_info=True)
                 raise
         
+    def _get_krita_config_dir(self) -> Path:
+        """Get Krita's configuration directory in a cross-platform way"""
+        from pathlib import Path
+        import os
+        import platform
+        
+        if platform.system() == "Windows":
+            return Path(os.path.expanduser("~")) / "AppData" / "Roaming" / "krita"
+        elif platform.system() == "Darwin":  # macOS
+            return Path(os.path.expanduser("~")) / "Library" / "Application Support" / "krita"
+        else:  # Linux and others
+            # Try XDG_CONFIG_HOME first, fallback to ~/.config
+            xdg_config = os.environ.get('XDG_CONFIG_HOME')
+            if xdg_config:
+                return Path(xdg_config) / "krita"
+            else:
+                return Path(os.path.expanduser("~")) / ".config" / "krita"
+    
     def _setup_logging(self) -> logging.Logger:
         """Setup plugin logging"""
         logger = logging.getLogger("smart_segments_plugin")
@@ -239,17 +264,21 @@ class SmartSegmentsExtension(Extension):
             
             if 'progress' in locals():
                 progress.close()
-                
+            
+            # Show the actual error to the user instead of a generic wait message
+            try:
+                self._show_error_dialog("Initialization Failed", error_msg)
+            except Exception:
+                pass
+            
             self.initialization_complete.emit(False)
             self.error_occurred.emit(error_msg)
             
     def _check_environment(self) -> bool:
         """Check if the required environment is ready"""
         try:
-            # Dynamically find the project root by following the symlink back to the real directory
-            plugin_file = Path(__file__).resolve()  # Resolve symlinks
-            # From smart_segments.py -> smart_segments -> pykrita -> Krita_Smart_Segments
-            project_root = plugin_file.parent.parent.parent
+            # Use Krita's resource path for cross-platform compatibility
+            project_root = self._get_krita_config_dir()
             venv_path = project_root / "venv"
             
             # Check if virtual environment exists
@@ -362,9 +391,7 @@ class SmartSegmentsExtension(Extension):
                     # Check if initialization completed synchronously
                     if self._initialized:
                         self._show_smart_segments_window(doc, active_node)
-                    else:
-                        # Initialization is still in progress, inform user
-                        self._show_initialization_dialog()
+                    # Otherwise, rely on the async initializer to show progress/errors
                     return
                 
                 # Ask user if they want to start setup
@@ -540,6 +567,8 @@ class SmartSegmentsExtension(Extension):
                     # Environment is ready, just initialize
                     self.logger.info("Environment ready, initializing plugin...")
                     self._initialize_async()
+                    # Show initialization dialog while loading
+                    self._show_initialization_dialog()
                     return
                 
                 # Ask user if they want to start setup
@@ -635,9 +664,7 @@ class SmartSegmentsExtension(Extension):
                     # Check if initialization completed synchronously
                     if self._initialized:
                         self._perform_quick_segmentation(doc, active_node)
-                    else:
-                        # Initialization is still in progress, inform user
-                        self._show_initialization_dialog()
+                    # Otherwise, rely on the async initializer to show progress/errors
                     return
                 
                 # Setup is not completed, ask user
@@ -732,10 +759,8 @@ Full settings dialog will be available in the next update."""
             progress.setLabelText("Initializing setup...")
             QApplication.processEvents()
             
-            # Dynamically find the project root by following the symlink back to the real directory
-            plugin_file = Path(__file__).resolve()  # Resolve symlinks
-            # From smart_segments.py -> smart_segments -> pykrita -> Krita_Smart_Segments
-            project_root = plugin_file.parent.parent.parent
+            # Use Krita's config directory for cross-platform compatibility
+            project_root = self._get_krita_config_dir()
             self.logger.info(f"Creating MinimalBootstrap with project_root: {project_root}")
             bootstrap = MinimalBootstrap(project_root)
             self.logger.info(f"MinimalBootstrap created: {bootstrap}")
@@ -756,25 +781,45 @@ Full settings dialog will be available in the next update."""
             
             success = bootstrap.create_virtual_environment()
             if not success:
-                raise Exception("Failed to create virtual environment")
-            
-            # Install dependencies
-            progress.setValue(60)
-            progress.setLabelText("Installing dependencies (this may take several minutes)...")
-            QApplication.processEvents()
-            
-            success = bootstrap.install_dependencies()
-            if not success:
-                raise Exception("Failed to install dependencies")
-            
-            # Verify installation
-            progress.setValue(90)
-            progress.setLabelText("Verifying installation...")
-            QApplication.processEvents()
-            
-            verification = bootstrap.verify_installation()
-            if not verification:
-                raise Exception("Installation verification failed")
+                raise Exception(
+                    "Failed to create virtual environment.\n\n"
+                    "Please ensure Python 3.10 is installed on your system:\n"
+                    "• On Windows: Install Python 3.10 from python.org\n"
+                    "• Make sure 'py' launcher is available (installed by default)\n"
+                    "• Or install Python 3.10 via Microsoft Store\n\n"
+                    "After installing Python 3.10, restart Krita and try again."
+                )
+            else:
+                # Install dependencies in venv
+                progress.setValue(60)
+                progress.setLabelText("Installing dependencies (this may take several minutes)...")
+                QApplication.processEvents()
+                
+                # Create progress callback
+                def update_progress(value, label):
+                    progress.setValue(value)
+                    progress.setLabelText(label)
+                    QApplication.processEvents()
+                
+                success = bootstrap.install_dependencies(progress_callback=update_progress)
+                if not success:
+                    raise Exception("Failed to install dependencies")
+                
+                # Download AI models
+                progress.setValue(88)
+                progress.setLabelText("Downloading AI models (this may take a while)...")
+                QApplication.processEvents()
+                success = bootstrap.download_models(progress_callback=update_progress)
+                if not success:
+                    raise Exception("Failed to download AI models")
+                
+                # Verify installation
+                progress.setValue(95)
+                progress.setLabelText("Verifying installation...")
+                QApplication.processEvents()
+                verification = bootstrap.verify_installation()
+                if not verification:
+                    raise Exception("Installation verification failed")
             
             progress.setValue(100)
             progress.close()
@@ -811,15 +856,29 @@ Full settings dialog will be available in the next update."""
             msg.setIcon(QMessageBox.Critical)
             msg.setWindowTitle("Setup Failed")
             msg.setText("Smart Segments setup failed.")
-            msg.setInformativeText(
-                "The automatic setup process encountered an error.\n\n"
-                "This could be due to:\n"
-                "• Network connectivity issues\n"
-                "• Insufficient disk space\n"
-                "• Permission problems\n"
-                "• System compatibility issues\n\n"
-                "Please check the logs for more details."
-            )
+            
+            # Check if it's a Python installation issue
+            if "Failed to create virtual environment" in str(e):
+                msg.setInformativeText(
+                    "Python 3.10 is required but not found.\n\n"
+                    "To fix this issue:\n"
+                    "1. Download Python 3.10 from https://python.org\n"
+                    "2. During installation, check 'Add Python to PATH'\n"
+                    "3. Complete the installation\n"
+                    "4. Restart Krita\n"
+                    "5. Try Smart Segments again\n\n"
+                    "Alternative: Install Python 3.10 from Microsoft Store"
+                )
+            else:
+                msg.setInformativeText(
+                    "The automatic setup process encountered an error.\n\n"
+                    "This could be due to:\n"
+                    "• Network connectivity issues\n"
+                    "• Insufficient disk space\n"
+                    "• Permission problems\n"
+                    "• System compatibility issues\n\n"
+                    "Please check the logs for more details."
+                )
             msg.setDetailedText(str(e))
             msg.exec_()
     

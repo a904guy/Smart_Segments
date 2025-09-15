@@ -38,7 +38,15 @@ class SAM2InferenceEngine:
             model_name: SAM2 model variant to use
             device: Device to run inference on ('cuda', 'cpu', or auto-detect)
         """
-        self.logger = logging.getLogger(__name__)
+        # Use a named logger that will be picked up by the main logging config
+        self.logger = logging.getLogger("smart_segments.inference_engine")
+        # Ensure it has the same handler as the main logger
+        if not self.logger.handlers:
+            main_logger = logging.getLogger("smart_segments_plugin")
+            if main_logger.handlers:
+                for handler in main_logger.handlers:
+                    self.logger.addHandler(handler)
+            self.logger.setLevel(logging.DEBUG)
         
         # Check dependencies
         if torch is None or SAM2ImagePredictor is None:
@@ -80,24 +88,37 @@ class SAM2InferenceEngine:
         
         try:
             # Load model
+            self.logger.info(f"Loading model {self.model_name} on device {self.device}...")
             model = self.model_loader.load_model(self.model_name, self.device)
             if model is None:
-                self.logger.error("Failed to load SAM2 model")
+                self.logger.error("Failed to load SAM2 model - model_loader.load_model returned None")
                 return False
             
-            # Initialize predictor
-            self.predictor = SAM2ImagePredictor(model)
+            self.logger.info(f"Model loaded successfully, initializing predictor...")
+            
+            # Disable JIT scripting for Krita compatibility
+            # Krita's embedded Python has issues with inspect.getsource
+            import torch
+            original_script = torch.jit.script
+            torch.jit.script = lambda x, *args, **kwargs: x  # Return unscripted module
+            
+            try:
+                # Initialize predictor
+                self.predictor = SAM2ImagePredictor(model)
+            finally:
+                # Restore original scripting function
+                torch.jit.script = original_script
             
             # Enable mixed precision if supported
             if self.enable_mixed_precision and hasattr(self.predictor, 'model'):
                 self.predictor.model.half()
                 self.logger.info("Enabled mixed precision (FP16)")
             
-            self.logger.info(f"SAM2 predictor initialized with {self.model_name}")
+            self.logger.info(f"SAM2 predictor initialized successfully with {self.model_name}")
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to initialize predictor: {e}")
+            self.logger.error(f"Failed to initialize predictor: {e}", exc_info=True)
             return False
     
     def _preprocess_image(self, image: Union[np.ndarray, str, Path]) -> Optional[np.ndarray]:
@@ -161,7 +182,9 @@ class SAM2InferenceEngine:
         Returns:
             True if image was set successfully
         """
+        self.logger.info(f"set_image called with image type: {type(image)}")
         if not self._ensure_model_loaded():
+            self.logger.error("Model loading failed in set_image")
             return False
         
         # Preprocess image
@@ -188,7 +211,7 @@ class SAM2InferenceEngine:
             return True
             
         except Exception as e:
-            self.logger.error(f"Failed to set image: {e}")
+            self.logger.error(f"Failed to set image: {e}", exc_info=True)
             return False
     
     def predict(self, 
@@ -338,16 +361,25 @@ class SAM2InferenceEngine:
                 self.logger.error("Failed to load raw model for automatic segmentation")
                 return None
                 
-            # Create automatic mask generator
-            mask_generator = SAM2AutomaticMaskGenerator(
-                model=model,
-                points_per_side=32,
-                pred_iou_thresh=0.88,
-                stability_score_thresh=0.95,
-                crop_n_layers=0,
-                crop_n_points_downscale_factor=1,
-                min_mask_region_area=100,  # Minimum area in pixels
-            )
+            # Disable JIT scripting for Krita compatibility
+            import torch
+            original_script = torch.jit.script
+            torch.jit.script = lambda x, *args, **kwargs: x  # Return unscripted module
+            
+            try:
+                # Create automatic mask generator
+                mask_generator = SAM2AutomaticMaskGenerator(
+                    model=model,
+                    points_per_side=32,
+                    pred_iou_thresh=0.88,
+                    stability_score_thresh=0.95,
+                    crop_n_layers=0,
+                    crop_n_points_downscale_factor=1,
+                    min_mask_region_area=100,  # Minimum area in pixels
+                )
+            finally:
+                # Restore original scripting function
+                torch.jit.script = original_script
             
             self.logger.info("Running automatic mask generation...")
             
