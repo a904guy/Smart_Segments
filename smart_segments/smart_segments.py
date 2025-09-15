@@ -401,7 +401,7 @@ class SmartSegmentsExtension(Extension):
                 msg.setInformativeText(
                     "This is your first time using Smart Segments.\n\n"
                     "The plugin needs to:\n"
-                    "• Download AI models (~2-3 GB)\n"
+                    "• Download AI models (~1 GB)\n"
                     "• Install PyTorch and dependencies\n"
                     "• Set up the segmentation environment\n\n"
                     "This process may take 10-15 minutes with internet connection.\n\n"
@@ -578,7 +578,7 @@ class SmartSegmentsExtension(Extension):
                 msg.setInformativeText(
                     "This is your first time using Smart Segments.\n\n"
                     "The plugin needs to:\n"
-                    "• Download AI models (~2-3 GB)\n"
+                    "• Download AI models (~1 GB)\n"
                     "• Install PyTorch and dependencies\n"
                     "• Set up the segmentation environment\n\n"
                     "This process may take 10-15 minutes with internet connection.\n\n"

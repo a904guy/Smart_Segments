@@ -72,7 +72,7 @@ AI-powered intelligent segmentation tool that uses advanced machine learning mod
 When you first run the plugin, it will automatically:
 - Check system requirements
 - Create a virtual environment
-- Download AI models (~2-3 GB)
+- Download AI models (~1 GB)
 - Install dependencies
 
 This process requires an internet connection and may take 10-15 minutes.
@@ -84,7 +84,7 @@ This process requires an internet connection and may take 10-15 minutes.
 ## System Requirements
 - Krita 5.0+ with Python support
 - 4GB+ RAM recommended
-- 5GB free disk space
+- 5-6 GB free disk space
 - Internet connection for initial setup
 
 ## Support

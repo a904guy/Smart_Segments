@@ -421,7 +421,7 @@ class SetupWizardDialog(QDialog):
         tips_text.setHtml("""
         <b>Common Issues and Solutions:</b><br>
         • <b>Internet Connection:</b> Ensure stable internet for downloading models<br>
-        • <b>Disk Space:</b> At least 2GB free space required for models<br>
+        • <b>Disk Space:</b> At least 5-6 GB free space required (1 GB models + 4-5 GB tooling)<br>
         • <b>Python Version:</b> Python 3.8+ required<br>
         • <b>GPU Drivers:</b> Update GPU drivers for optimal performance<br>
         • <b>Antivirus:</b> Temporarily disable if blocking downloads

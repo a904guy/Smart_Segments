@@ -26,7 +26,7 @@ Transform your digital art workflow with cutting-edge AI segmentation technology
 | **Krita** | 5.0+ | APT version with Python support (not Snap) |
 | **Python** | 3.7+ | System Python installation |
 | **PyQt5** | Latest | For Python-Krita bindings |
-| **Disk Space** | ~5GB | For AI models and dependencies |
+| **Disk Space** | 5-6 GB | For AI models (1 GB) and tooling/dependencies (4-5 GB) |
 | **RAM** | 4GB+ | Recommended for optimal performance |
 
 ### 🖥️ Platform Support
@@ -251,7 +251,7 @@ graph LR
 | 4️⃣ | **Dependency Installation** | ~2-5min | Internet connection |
 | 5️⃣ | **Test Segmentation** | ~30s | - |
 
-> **📡 Internet Required**: First setup requires internet connection for downloading AI models (~2-3GB)
+> **📡 Internet Required**: First setup requires internet connection for downloading AI models (~1GB)
 
 ## 🔧 System Requirements
 
@@ -264,9 +264,9 @@ graph LR
 
 ### 💿 Storage Requirements
 - **Base Plugin**: ~50MB
-- **AI Models**: ~2-3GB  
-- **Dependencies**: ~1-2GB
-- **Total**: ~5GB
+- **AI Models**: ~1GB  
+- **Tooling/Dependencies**: ~4-5GB
+- **Total**: ~5-6GB
 
 ---
 

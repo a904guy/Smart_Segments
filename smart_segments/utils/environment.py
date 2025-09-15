@@ -236,13 +236,13 @@ class EnvironmentUtils:
         return None
     
     @staticmethod
-    def check_disk_space(path: Union[str, Path], required_mb: int = 1000) -> Tuple[bool, int]:
+    def check_disk_space(path: Union[str, Path], required_mb: int = 5120) -> Tuple[bool, int]:
         """
         Check available disk space at given path
         
         Args:
             path: Path to check
-            required_mb: Required space in MB
+            required_mb: Required space in MB (default: 5120 MB = 5 GB)
             
         Returns:
             Tuple of (has_enough_space, available_mb)
