@@ -11,7 +11,7 @@ __build_date__ = "2024-01-01"
 
 # Compatibility information
 MIN_KRITA_VERSION = "5.0.0"
-MIN_PYTHON_VERSION = "3.7"
+MIN_PYTHON_VERSION = "3.10"
 
 # Plugin metadata
 PLUGIN_NAME = "Smart Segments"
