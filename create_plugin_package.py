@@ -15,7 +15,7 @@ def create_plugin_package():
     
     # Configuration
     plugin_name = "smart_segments"
-    version = "1.0.0"
+    version = "1.0.2"
     package_name = f"SmartSegments_v{version}.zip"
     
     # Paths

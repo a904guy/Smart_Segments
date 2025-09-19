@@ -172,13 +172,55 @@ class SAM2ModelLoader:
         
         return checkpoint_path.exists()
     
-    def load_model(self, model_name: str = 'sam2_hiera_large', device: Optional[str] = None) -> Optional[Any]:
+    def load_model(self, model_name: str, device: Optional[str] = None) -> Optional[Any]:
         """
-        Load SAM2 model for inference
+        Load SAM2 model with automatic download if needed
         
         Args:
-            model_name: Model variant to load
+            model_name: Name of the model to load
             device: Device to load model on ('cuda', 'cpu', or None for auto)
+            
+        Returns:
+            Loaded SAM2 model or None if failed
+        """
+        return self._load_model_with_fallback(model_name, device)
+    
+    def _load_model_with_fallback(self, model_name: str, device: Optional[str] = None) -> Optional[Any]:
+        """
+        Load SAM2 model with automatic device fallback
+        
+        Args:
+            model_name: Name of the model to load
+            device: Device to load model on ('cuda', 'cpu', or None for auto)
+            
+        Returns:
+            Loaded SAM2 model or None if failed
+        """
+        # Determine device
+        if device is None:
+            from ..utils.system_utils import CUDACompatibilityChecker
+            device, reason = CUDACompatibilityChecker.get_recommended_device()
+            self.logger.info(f"Auto-selected device: {device} ({reason})")
+        
+        # First attempt with requested/auto-selected device
+        model = self._load_single_device(model_name, device)
+        
+        # If CUDA failed and we haven't tried CPU yet, fall back to CPU
+        if model is None and device == "cuda":
+            self.logger.warning(f"Failed to load {model_name} on CUDA, attempting CPU fallback...")
+            model = self._load_single_device(model_name, "cpu")
+            if model is not None:
+                self.logger.info(f"Successfully loaded {model_name} on CPU after CUDA failure")
+        
+        return model
+    
+    def _load_single_device(self, model_name: str, device: str) -> Optional[Any]:
+        """
+        Load SAM2 model on a specific device without fallback
+        
+        Args:
+            model_name: Name of the model to load
+            device: Device to load model on ('cuda' or 'cpu')
             
         Returns:
             Loaded SAM2 model or None if failed
@@ -199,10 +241,6 @@ class SAM2ModelLoader:
             if not self.download_model(model_name):
                 self.logger.error(f"Failed to download model {model_name}")
                 return None
-        
-        # Determine device
-        if device is None:
-            device = "cuda" if torch.cuda.is_available() else "cpu"
         
         try:
             config = self.MODEL_CONFIGS[model_name]
@@ -237,7 +275,38 @@ class SAM2ModelLoader:
             return model
             
         except Exception as e:
-            self.logger.error(f"Failed to load model {model_name}: {e}", exc_info=True)
+            error_msg = str(e)
+            
+            # Provide user-friendly error messages for common CUDA issues
+            if "no kernel image is available" in error_msg.lower():
+                self.logger.error(
+                    f"CUDA Compatibility Error loading {model_name}:\n"
+                    f"PyTorch was compiled for a different CUDA version than your GPU drivers.\n"
+                    f"This commonly happens when:\n"
+                    f"• GPU drivers are outdated or too new for PyTorch\n"
+                    f"• PyTorch was installed with wrong CUDA version\n"
+                    f"• GPU compute capability is not supported\n"
+                    f"Original error: {error_msg}"
+                )
+            elif "cuda" in error_msg.lower() and "out of memory" in error_msg.lower():
+                self.logger.error(
+                    f"GPU Memory Error loading {model_name}:\n"
+                    f"Not enough GPU memory to load the model.\n"
+                    f"Try closing other GPU-intensive applications or use CPU mode.\n"
+                    f"Original error: {error_msg}"
+                )
+            elif "cuda" in error_msg.lower():
+                self.logger.error(
+                    f"CUDA Error loading {model_name}:\n"
+                    f"GPU/CUDA issue detected. Common solutions:\n"
+                    f"• Update GPU drivers\n"
+                    f"• Reinstall PyTorch with correct CUDA version\n"
+                    f"• Use CPU mode if GPU is not essential\n"
+                    f"Original error: {error_msg}"
+                )
+            else:
+                self.logger.error(f"Failed to load model {model_name}: {e}", exc_info=True)
+                
             return None
     
     def clear_cache(self):

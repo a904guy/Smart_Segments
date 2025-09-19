@@ -56,9 +56,12 @@ class SAM2InferenceEngine:
         self.model_loader = SAM2ModelLoader()
         self.model_name = model_name
         
-        # Device selection
+        # Device selection with CUDA compatibility checking
         if device is None:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            from ..utils.system_utils import CUDACompatibilityChecker
+            recommended_device, reason = CUDACompatibilityChecker.get_recommended_device()
+            self.device = recommended_device
+            self.logger.info(f"Auto-selected device: {self.device} ({reason})")
         else:
             self.device = device
         
@@ -87,11 +90,19 @@ class SAM2InferenceEngine:
             return True
         
         try:
-            # Load model
+            # Load model with device fallback
             self.logger.info(f"Loading model {self.model_name} on device {self.device}...")
             model = self.model_loader.load_model(self.model_name, self.device)
+            
+            # If CUDA failed and we were using CUDA, try CPU fallback
+            if model is None and self.device == "cuda":
+                self.logger.warning("CUDA model loading failed, attempting CPU fallback...")
+                self.device = "cpu"
+                self.enable_mixed_precision = False  # Disable mixed precision for CPU
+                model = self.model_loader.load_model(self.model_name, self.device)
+                
             if model is None:
-                self.logger.error("Failed to load SAM2 model - model_loader.load_model returned None")
+                self.logger.error("Failed to load SAM2 model on both CUDA and CPU")
                 return False
             
             self.logger.info(f"Model loaded successfully, initializing predictor...")

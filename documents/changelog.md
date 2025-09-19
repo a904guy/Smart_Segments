@@ -9,6 +9,65 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased] - In Development
 
 ### 🚀 Added
+- 🔄 Ongoing improvements and feature development
+
+---
+
+## [1.0.2] - 2025-09-19 - CUDA Compatibility Enhancement
+
+### 🚀 Added
+
+#### **CUDA Compatibility System**
+- 🔍 **Smart Device Detection**: Advanced CUDA compatibility checking with actual GPU operation testing
+- 🔄 **Automatic Fallback**: Seamless CPU fallback when CUDA compatibility issues are detected  
+- 🧠 **Compatibility Checker**: New `CUDACompatibilityChecker` class for comprehensive GPU analysis
+- 📊 **GPU Information**: Detailed GPU info reporting including memory, CUDA versions, and compatibility status
+
+#### **Enhanced Error Handling**
+- 💬 **User-Friendly Dialogs**: Specialized CUDA error dialogs with clear explanations and troubleshooting steps
+- 🛠️ **Actionable Guidance**: Specific recommendations for resolving GPU driver and PyTorch compatibility issues
+- 📝 **Improved Logging**: Better error categorization for CUDA-related issues
+
+### 🐛 Fixed
+
+#### **Critical: CUDA Kernel Compatibility Error**
+**Issue**: Plugin crashed with "CUDA error: no kernel image is available for execution on the device" when PyTorch CUDA version didn't match GPU drivers.
+
+**Resolution**:
+- ✅ **Compatibility Testing**: Added real CUDA operation testing during device selection
+- 🔄 **Automatic Recovery**: Plugin automatically falls back to CPU mode when CUDA fails
+- 💬 **User Communication**: Clear dialog explaining GPU issues and continued functionality in CPU mode
+- 🛡️ **Graceful Degradation**: Full plugin functionality maintained in CPU mode
+
+**Impact**: Eliminates crashes due to CUDA compatibility issues, ensures plugin works on all systems.
+
+---
+
+## [1.0.1] - 2025-09-15 - Windows Platform Fixes
+
+### 🐛 Fixed
+
+#### **Critical: Windows Path Handling**
+**Issue**: Plugin failed to initialize on Windows due to incorrect path separators and file system operations.
+
+**Resolution**:
+- ✅ **Path Normalization**: Fixed cross-platform path handling using `pathlib.Path`
+- 🔧 **File Operations**: Corrected Windows-specific file system operations
+- 📁 **Directory Creation**: Fixed virtual environment and model directory creation on Windows
+- 🐍 **Python Detection**: Improved Python executable detection for Windows environments
+
+#### **Windows-Specific Environment Issues**
+- 🔧 **Virtual Environment**: Fixed venv creation and activation on Windows
+- 📦 **Package Installation**: Resolved pip installation issues in Windows environments
+- 🔍 **Dependency Detection**: Improved dependency checking for Windows Python installations
+
+**Impact**: Full Windows compatibility restored, plugin works seamlessly across all supported platforms.
+
+---
+
+## [1.0.0] - 2025-09-01 - Initial Release
+
+### 🚀 Added
 
 #### **Interactive Overlay UI System**
 - ✨ Custom QWidget overlay with precise click detection and coordinate mapping

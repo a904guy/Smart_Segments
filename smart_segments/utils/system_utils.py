@@ -756,6 +756,121 @@ Terminal=false
         return applications
 
 
+# GPU and CUDA Compatibility
+@dataclass
+class GPUInfo:
+    """GPU information data class"""
+    has_gpu: bool
+    gpu_name: str
+    gpu_memory: int  # MB
+    cuda_available: bool
+    cuda_version: str
+    pytorch_cuda_version: str
+    is_compatible: bool
+    compatibility_error: Optional[str]
+
+
+class CUDACompatibilityChecker:
+    """Check CUDA compatibility between system, PyTorch, and drivers"""
+    
+    @staticmethod
+    def check_cuda_compatibility() -> GPUInfo:
+        """
+        Check CUDA compatibility and return detailed GPU information
+        
+        Returns:
+            GPUInfo with compatibility details and any errors
+        """
+        try:
+            import torch
+        except ImportError:
+            return GPUInfo(
+                has_gpu=False,
+                gpu_name="Unknown",
+                gpu_memory=0,
+                cuda_available=False,
+                cuda_version="N/A",
+                pytorch_cuda_version="N/A",
+                is_compatible=False,
+                compatibility_error="PyTorch not available"
+            )
+        
+        cuda_available = torch.cuda.is_available()
+        gpu_name = "Unknown"
+        gpu_memory = 0
+        cuda_version = "N/A"
+        # Get PyTorch CUDA version
+        try:
+            pytorch_cuda_version = getattr(getattr(torch, 'version', None), 'cuda', 'N/A')
+        except (AttributeError, TypeError):
+            pytorch_cuda_version = "N/A"
+        compatibility_error = None
+        
+        if cuda_available:
+            try:
+                gpu_name = torch.cuda.get_device_name(0)
+                gpu_memory = torch.cuda.get_device_properties(0).total_memory // (1024 * 1024)
+                cuda_version = pytorch_cuda_version
+                
+                # Test basic CUDA operations
+                try:
+                    test_tensor = torch.tensor([1.0]).cuda()
+                    test_result = test_tensor + 1
+                    test_result.cpu()  # Move back to CPU to complete the test
+                    is_compatible = True
+                except RuntimeError as e:
+                    is_compatible = False
+                    if "no kernel image is available" in str(e).lower():
+                        compatibility_error = (
+                            f"CUDA kernel compatibility error: PyTorch was compiled for CUDA {pytorch_cuda_version} "
+                            f"but your system has different CUDA drivers. This often occurs when:\n"
+                            f"• GPU drivers are too old/new for the PyTorch CUDA version\n"
+                            f"• PyTorch was installed with wrong CUDA version\n"
+                            f"• GPU compute capability is not supported"
+                        )
+                    else:
+                        compatibility_error = f"CUDA runtime error: {str(e)}"
+                        
+            except Exception as e:
+                is_compatible = False
+                compatibility_error = f"Failed to query GPU information: {str(e)}"
+        else:
+            is_compatible = False
+            if torch.cuda.device_count() > 0:
+                compatibility_error = "CUDA devices detected but PyTorch CUDA support not available"
+            else:
+                compatibility_error = "No CUDA devices detected"
+        
+        return GPUInfo(
+            has_gpu=cuda_available,
+            gpu_name=gpu_name,
+            gpu_memory=gpu_memory,
+            cuda_available=cuda_available,
+            cuda_version=cuda_version,
+            pytorch_cuda_version=pytorch_cuda_version,
+            is_compatible=is_compatible,
+            compatibility_error=compatibility_error
+        )
+    
+    @staticmethod
+    def get_recommended_device() -> Tuple[str, str]:
+        """
+        Get recommended device and reason for the recommendation
+        
+        Returns:
+            Tuple of (device, reason)
+        """
+        gpu_info = CUDACompatibilityChecker.check_cuda_compatibility()
+        
+        if gpu_info.is_compatible:
+            return "cuda", f"CUDA compatible GPU detected: {gpu_info.gpu_name}"
+        elif gpu_info.cuda_available:
+            return "cpu", f"CUDA available but not compatible: {gpu_info.compatibility_error}"
+        else:
+            return "cpu", f"CUDA not available: {gpu_info.compatibility_error}"
+
+
 # Convenience instances
 resource_manager = SystemResourceManager()
 platform_ops = PlatformSpecificOperations()
+cuda_checker = CUDACompatibilityChecker()

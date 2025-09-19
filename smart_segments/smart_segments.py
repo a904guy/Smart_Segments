@@ -265,9 +265,13 @@ class SmartSegmentsExtension(Extension):
             if 'progress' in locals():
                 progress.close()
             
-            # Show the actual error to the user instead of a generic wait message
+            # Check if this is a CUDA-related error and show specialized dialog
+            error_str = str(e).lower()
             try:
-                self._show_error_dialog("Initialization Failed", error_msg)
+                if "no kernel image is available" in error_str or ("cuda" in error_str and ("error" in error_str or "failed" in error_str)):
+                    self._show_cuda_error_dialog(str(e))
+                else:
+                    self._show_error_dialog("Initialization Failed", error_msg)
             except Exception:
                 pass
             
@@ -889,6 +893,44 @@ Full settings dialog will be available in the next update."""
         msg.setWindowTitle(title)
         msg.setText(message)
         msg.exec_()
+    
+    def _show_cuda_error_dialog(self, error_message: str):
+        """Show specialized dialog for CUDA-related errors with helpful guidance"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Smart Segments - GPU Compatibility Issue")
+        
+        if "no kernel image is available" in error_message.lower():
+            msg.setText("GPU Compatibility Issue Detected")
+            msg.setInformativeText(
+                "Smart Segments encountered a CUDA compatibility error.\n\n"
+                "The plugin has automatically switched to CPU mode, which will work but may be slower.\n\n"
+                "To resolve this GPU issue:\n"
+                "• Update your GPU drivers\n"
+                "• Ensure PyTorch was installed with the correct CUDA version\n"
+                "• Check if your GPU is supported\n\n"
+                "The plugin will continue working in CPU mode."
+            )
+        elif "cuda" in error_message.lower() and "out of memory" in error_message.lower():
+            msg.setText("GPU Memory Issue")
+            msg.setInformativeText(
+                "Your GPU doesn't have enough memory to run Smart Segments.\n\n"
+                "The plugin has switched to CPU mode.\n\n"
+                "To use GPU mode:\n"
+                "• Close other GPU-intensive applications\n"
+                "• Consider using a smaller model variant\n"
+                "• Use CPU mode for now (will be slower but functional)"
+            )
+        else:
+            msg.setText("GPU Error Detected")
+            msg.setInformativeText(
+                "Smart Segments encountered a GPU-related error.\n\n"
+                "The plugin has automatically switched to CPU mode.\n\n"
+                "This may result in slower performance but full functionality is maintained."
+            )
+        
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
         
     # Public API methods for UI components
     
@@ -947,7 +989,7 @@ Full settings dialog will be available in the next update."""
         """Get plugin information and status"""
         info = {
             'name': 'Smart Segments',
-            'version': '1.0.0',
+            'version': '1.0.2',
             'initialized': self._initialized,
             'environment_ready': self._environment_ready,
             'active_session': self._active_session_id,

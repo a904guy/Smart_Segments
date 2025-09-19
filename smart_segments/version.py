@@ -2,8 +2,8 @@
 Version information for Smart Segments Krita Plugin
 """
 
-__version__ = "0.1.0"
-__version_info__ = (0, 1, 0)
+__version__ = "1.0.2"
+__version_info__ = (1, 0, 2)
 
 # Build information
 __build__ = "dev"
