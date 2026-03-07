@@ -299,6 +299,12 @@ class PythonDetector:
                 Path("/Library/Frameworks/Python.framework/Versions"),
                 self.path_handler.get_home_directory() / ".pyenv/versions",
                 Path("/opt/local/bin"),  # MacPorts
+                # Krita bundled Python (system-wide installation)
+                Path("/Applications/krita.app/Contents/Frameworks/Python.framework/Versions/3.10"),
+                # Krita bundled Python (user ~/Applications installation)
+                self.path_handler.get_home_directory() / "Applications/krita.app/Contents/Frameworks/Python.framework/Versions/3.10",
+                # Krita bundled Python (user ~/Library/Applications installation)
+                self.path_handler.get_home_directory() / "Library/Applications/krita.app/Contents/Frameworks/Python.framework/Versions/3.10",
             ])
         
         else:
